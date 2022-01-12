@@ -19,8 +19,8 @@ body{
 }
 
 .navh1{
+  transform:translateX(-50%)
   color:white;
-  margin-left:4vw;
   display:inline;
   vertical-align: middle;
 }

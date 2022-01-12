@@ -22,10 +22,15 @@ export default class App extends React.Component {
     allitems:[],
     collections:[],
     checkout:{},
+    ascending:false,
+    descending:false,
+    searching:false,
+    range:false,
     searchTerm:'',
     numcartitems:0,
     bottomRange:0,
-    topRange:1000000000000
+    topRange:1000000000000,
+    chosencollection:''
   }
   this.getItems=this.getItems.bind(this);
   this.addToCart=this.addToCart.bind(this);
@@ -52,7 +57,6 @@ console.log("check on page refresh",checkout)
   if(checkout){
     client.checkout.fetch(checkout).then((checkout) => {
     console.log("checkout on page refresh",checkout);
-
     this.setState({checkout:checkout,numcartitems:checkout.lineItems.length})
   });
 }
@@ -98,17 +102,24 @@ await client.checkout.addLineItems(checkout, lineItemsToAdd).then((checkout) => 
 });
 }
 
-async getCollectionProducts(collectionId){
-  console.log(collectionId)
+async getCollectionProducts(collectionId,title){
+  console.log(collectionId,title)
   client.collection.fetchWithProducts(collectionId, {productsFirst: 10}).then((collection) => {
-  console.log(collection);
-  console.log(collection.products);
-  this.setState({items:collection.products})
+  console.log("setting collection",collection.products);
+  console.log(this.state.collections)
+
+  this.setState({items:collection.products,chosencollection:title})
 })
 }
 
 getAllProducts(collectionId){
-  this.setState({items:this.state.allitems})
+  this.setState({items:this.state.allitems,
+      ascending:false,
+      descending:false,
+      searching:false,
+      range:false,
+      chosencollection:''
+    })
 }
 
 updateSearch(e){
@@ -134,17 +145,17 @@ console.log("items",this.state.items)
   searched=searched.filter(item=>Number(item.variants[0].price)>=b)
 
   console.log("within range",searched)
-  this.setState({items:searched})
+  this.setState({items:searched,range:true})
 }
 
 orderhl(){
 let sorted=this.state.items.sort(function(a, b){return Number(a.variants[0].price) - Number(b.variants[0].price)});
-this.setState({items:sorted})
+this.setState({items:sorted,descending:true,ascending:false})
 }
 
 orderlh(){
   let sorted=this.state.items.sort(function(a, b){return Number(b.variants[0].price) - Number(a.variants[0].price)});
-  this.setState({items:sorted})
+  this.setState({items:sorted,ascending:true,descending:false})
 }
 
 searchProducts(e){
@@ -152,7 +163,7 @@ searchProducts(e){
   console.log(term)
   let searched=this.state.items.filter(item=>item.title.toLowerCase().includes(term))
   console.log(searched)
-  this.setState({items:searched})
+  this.setState({items:searched,searching:true})
 }
   render () {
     return (
@@ -162,21 +173,24 @@ searchProducts(e){
 
         <button onClick={() => this.getAllProducts()}>All Products All Categories</button>
         {this.state.collections&&this.state.collections.map(item=>{return(
-           <button style={{margin:"0.5vw"}} onClick={() => this.getCollectionProducts(item.id)}>{item.title}</button>
+           <button style={{margin:"0.5vw",opacity:(this.state.chosencollection==item.title)?"0.5":"1"}} onClick={() => this.getCollectionProducts(item.id,item.title)}>{item.title}</button>
         )})}
 
         <div style={{marginTop:"0.5vw",paddingTop:"0.5vw",borderTop:"solid",borderColor:"#525cb4"}}>
-        <button style={{marginRight:"2vw",display:"inline"}} onClick={(e) => this.searchProducts(e)}>Search Products</button>
+        <button style={{marginRight:"2vw",marginBottom:"1vw",display:"inline",opacity:this.state.searching?"0.5":"1"}}
+         onClick={(e) => this.searchProducts(e)}>Search Products</button>
         <input style={{marginRight:"2vw",display:"inline",width:"70%",marginBottom:"1vw"}} onChange={(e) => this.updateSearch(e)}
          type="text" />
          <div>
-         <button style={{display:"inline",marginRight:"1vw"}} onClick={this.filterPriceRange}>Set Price Range</button>
+         <button style={{display:"inline",marginRight:"1vw",opacity:this.state.range?"0.5":"1"}} onClick={this.filterPriceRange}>Set Price Range</button>
          <input style={{marginRight:"2vw",display:"inline",width:"8%",marginBottom:"1vw",marginRight:"1vw"}} onChange={(e) => this.updateBottomRange(e)}
           type="number" /><p style={{display:"inline",marginRight:"1vw"}}>to</p>
           <input style={{marginRight:"2vw",display:"inline",width:"8%",marginBottom:"1vw",marginRight:"1vw"}} onChange={(e) => this.updateTopRange(e)}
            type="number" />
-           <button style={{display:"inline",marginRight:"1vw"}} onClick={this.orderlh}>Price Descending</button>
-           <button style={{display:"inline",marginRight:"1vw"}} onClick={this.orderhl}>Price Ascending</button>
+           <button style={{display:"inline",marginBottom:"1vw",marginRight:"1vw",opacity:this.state.ascending?"0.5":"1"}}
+            onClick={this.orderlh}>Price Descending</button>
+           <button style={{display:"inline",marginBottom:"1vw",marginRight:"1vw",opacity:this.state.descending?"0.5":"1"}}
+            onClick={this.orderhl}>Price Ascending</button>
            </div>
         </div>
       <div  style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",maxHeight:"80%",width:"90vw",overflow:"scroll",

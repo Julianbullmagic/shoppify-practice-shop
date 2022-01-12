@@ -19,9 +19,7 @@ export default class NavBar extends React.Component {
     items:[],
     checkoutnum:0
   }
-
 }
-
 
 
   render () {
