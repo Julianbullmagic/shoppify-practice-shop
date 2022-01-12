@@ -2,6 +2,10 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
 
+body{
+  color:#525cb4;
+}
+
 .nav{
   width:100vw;
   height:12vh;
@@ -24,7 +28,7 @@ const GlobalStyle = createGlobalStyle`
 .navh2{
   display:inline;
   color:white;
-  margin-left:60vw;
+  margin-left:1vw;
   vertical-align: middle;
   text-decoration:none;
 }
@@ -81,11 +85,11 @@ input{
 box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 border-color:rgba(0, 0, 0, 0.35);
 margin-right:2vw;
+border-radius:10px;
 }
 
 .cartheader{
   margin-left:4vw;
-  transform:translateY(50%)
 }
 
 label{
@@ -95,6 +99,10 @@ label{
 
 .cart{
   margin:4vw;
+}
+
+input{
+  width:80%;
 }
 
 `;

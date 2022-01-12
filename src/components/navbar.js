@@ -17,41 +17,23 @@ export default class NavBar extends React.Component {
   super(props);
   this.state={
     items:[],
-    checkout:{},
     checkoutnum:0
   }
-  this.getCheckout=this.getCheckout.bind(this)
-  window.addEventListener("storage", function () {
-  console.log("ssss")
-  }, false);
+
 }
 
 
-componentDidMount(){
-this.getCheckout()
-}
 
-async getCheckout(){
-  let checkout=sessionStorage.getItem('checkout')
-console.log("checkoutid in navebar",checkout)
-  if(checkout){
-    client.checkout.fetch(checkout).then((checkout) => {
-    console.log("checkout on navbar",checkout.lineItems);
-    this.setState({checkout:checkout})
-  });
-}
-}
   render () {
-    let length=0
-    if(this.state.checkout.lineItems){
-    length=this.state.checkout.lineItems.length
-    }
 
+console.log("num cart items",this.props.numcartitems)
     return (
       <div className="nav">
       <h1 className="navh1"><a href={"/"}>All Shoes</a></h1>
+      <img style={{width:"8vw",marginLeft:"1vw"}} src={require("./shoelogo.png")}/>
+      <img style={{width:"5vw",marginLeft:"40vw"}} src={require("./carticon.png")}/>
       <h2 className="navh2"><a href={"/cart"}>Cart</a></h2>
-      {this.state.checkout&&<h3 style={{color:"red",marginLeft:"1vw"}}>{length} items in cart</h3>}
+      {(this.props.numcartitems>0)&&<h3 style={{color:"red",marginLeft:"1vw"}}>{this.props.numcartitems} items in cart</h3>}
 
       </div>
     )

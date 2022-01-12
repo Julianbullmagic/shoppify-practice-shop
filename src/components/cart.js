@@ -1,6 +1,7 @@
 import React from 'react'
 import Client from 'shopify-buy';
 import {Link} from 'react-router-dom'
+import NavBar from './navbar'
 
 const client = Client.buildClient({
   domain: 'shoeshoeshoe3218.myshopify.com',
@@ -22,7 +23,9 @@ export default class Cart extends React.Component {
       lastName: '',
       phone: '',
       province: '',
-      zip: ''
+      zip: '',
+      numcartitems:0,
+      submittedAddress:false
   }
   this.removeFromCart=this.removeFromCart.bind(this)
   this.updateCart=this.updateCart.bind(this)
@@ -42,7 +45,7 @@ console.log("check on page refresh",checkout)
   if(checkout){
     client.checkout.fetch(checkout).then((checkout) => {
     console.log("checkout on page refresh",checkout);
-    this.setState({checkout:checkout})
+    this.setState({checkout:checkout,numcartitems:checkout.lineItems.length})
 
     if(checkout.shippingAddress){
       this.setState({
@@ -69,32 +72,35 @@ async removeFromCart(itemId){
 // Remove an item from the checkout
 client.checkout.removeLineItems(this.state.checkout.id, lineItemIdsToRemove).then((checkout) => {
   console.log("line items after removing one",checkout.lineItems);
-  this.setState({checkout:checkout})
+  this.setState({checkout:checkout,numcartitems:checkout.lineItems.length})
 });
 }
 
 async updateCart(itemId,quantity,plusorminus){
+
+  console.log("updating cart",itemId,quantity,plusorminus)
   let lineItemsToUpdate
 
-if(quantity-1==0){
-  this.removeFromCart(itemId)
-}else{
+
   if(plusorminus){
     lineItemsToUpdate = [
       {id: itemId, quantity: quantity+1}
     ];
-  }else{
+  }
+
+  if(!plusorminus){
     lineItemsToUpdate = [
       {id: itemId, quantity: quantity-1}
     ];
-  }
+ }
+ console.log("id",this.state.checkout.id)
 
-  client.checkout.updateLineItems(this.state.checkout.id, lineItemsToUpdate).then((checkout) => {
-    console.log(checkout.lineItems);
-    this.setState({checkout:checkout})
-  });
+ client.checkout.updateLineItems(this.state.checkout.id, lineItemsToUpdate).then((checkout) => {
+   console.log("LINEITEMS",checkout.lineItems);
+   this.setState({checkout:checkout,numcartitems:checkout.lineItems.length})
+ });
 }
-}
+
 
 
 async addAddress(){
@@ -129,28 +135,30 @@ handleSubmit(event) {
 console.log(this.state)
 this.addAddress()
   event.preventDefault();
+  this.setState({submittedAddress:true})
 }
 
 
   render () {
     return (
       <div>
-      <br/>
-        <br/>
-        <h1 className="cartheader">Cart</h1>
+      <NavBar numcartitems={this.state.numcartitems}/>
+<div style={{margin:"5vw",padding:"2vw",borderStyle:"solid",borderColor:"#525cb4",borderRadius:"10px",textAlign:"center"}}>
+        <h1 className="cartheader" style={{color:"#525cb4"}}>Cart</h1>
 
         {this.state.checkout.lineItems&&this.state.checkout.lineItems.map(item=>{return (
-            <div>
-            <h2>{item.title}</h2>
-            <h3>Quantity: {item.quantity}</h3>
-            <button onClick={(e) => this.removeFromCart(item.id)}>Remove</button>
-            <h4>Update Quantity</h4>
-            <button onClick={() => this.updateCart(item.id,item.quantity,true)}>+</button>
-            <button onClick={() => this.updateCart(item.id,item.quantity,false)}>-</button>
-
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <h2 style={{margin:"1vw",color:"#525cb4"}}>{item.title},</h2>
+            <h3 style={{margin:"1vw",color:"#525cb4"}}>Quantity: {item.quantity}</h3>
+            <h4 style={{margin:"1vw",color:"#525cb4"}}>Update Quantity,</h4>
+            <button style={{margin:"1vw"}} onClick={() => this.updateCart(item.id,item.quantity,true)}>+</button>
+            <button style={{margin:"1vw"}} onClick={() => this.updateCart(item.id,item.quantity,false)}>-</button>
             </div>
     )})}
-    <form className="cart" onSubmit={this.handleSubmit}>
+    </div>
+    <div style={{margin:"5vw",padding:"2vw",borderStyle:"solid",borderColor:"#525cb4",borderRadius:"10px",textAlign:"left",color:"#525cb4"}}>
+    <form className="cart">
+    <h1 style={{textAlign:"center"}}>Add Address</h1>
   <label>
     <input type="text" value={this.state.address1} placeholder={this.state.address1} name="address1"  onChange={(value) => this.handleChange(value)} />
     Address1
@@ -192,9 +200,10 @@ City
     Zip
   </label>
 
-  <input type="submit" value="Submit" />
-  {this.state.checkout.webUrl&&<button><a style={{textDecoration:"none",color:"black"}} href={this.state.checkout.webUrl}>Complete order, provide payment details</a></button>}
+  {!this.state.submittedAddress&&<button onClick={this.handleSubmit}>Add Address</button>}
+  {(this.state.checkout.webUrl&&this.state.submittedAddress)&&<button><a style={{textDecoration:"none",color:"black"}} href={this.state.checkout.webUrl}>Complete order, provide payment details</a></button>}
 </form>
+      </div>
       </div>
     )
   }

@@ -5,9 +5,7 @@ import {BrowserRouter,Route,Routes} from 'react-router-dom'
 import Cart from './components/cart'
 import SingleProductPage from './components/singleproductpage'
 import GlobalStyle from './globalstyles';
-import NavBar from './components/navbar'
 import React from 'react';
-export const UserContext = React.createContext();
 
 
 const render = Component => {
@@ -20,7 +18,6 @@ const render = Component => {
   ReactDOM.render(
     <div>
     <GlobalStyle />
-    <NavBar/>
     <BrowserRouter>
     <Routes>
 

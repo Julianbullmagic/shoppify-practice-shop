@@ -3,6 +3,7 @@ import {useParams} from "react-router-dom";
 import React, {useEffect,useState,useRef} from 'react';
 import Stars from 'simple-rating-stars';
 import Client from 'shopify-buy';
+import NavBar from './navbar'
 
 
 const client = Client.buildClient({
@@ -10,11 +11,12 @@ const client = Client.buildClient({
   storefrontAccessToken: '1c85f492e0af12f1faf7a619b1baa3a4'
 });
 
-export default function SingleProductPage(){
+export default function SingleProductPage(props){
   const {id} = useParams();
   const [reviews, setReviews] = useState([]);
   const [average,setAverage]=useState(5)
   const [product,setProduct]=useState({})
+  const [numcartitems,setNumcartitems]=useState(0)
   const nameRef = useRef('');
   const reviewRef = useRef('');
   const starsRef = useRef(5);
@@ -24,6 +26,7 @@ useEffect(()=>{
 console.log("id",id)
 getReviews()
 getProduct()
+getCheckout()
 },[])
 
 async function getProduct(){
@@ -31,6 +34,17 @@ async function getProduct(){
   console.log(product);
   setProduct(product)
 });
+}
+
+async function getCheckout(){
+  let checkout=sessionStorage.getItem('checkout')
+console.log("check on page refresh",checkout)
+  if(checkout){
+    client.checkout.fetch(checkout).then((checkout) => {
+    console.log("checkout on page refresh",checkout);
+    setNumcartitems(checkout.lineItems.length)
+  });
+}
 }
 
 async function addToCart(id){
@@ -43,7 +57,6 @@ console.log("check",checkout)
     sessionStorage.setItem('checkout',checkout.id)
   });
 }
-  console.log(id,this.state.checkout.id)
   console.log("chekcout",checkout)
 
 const lineItemsToAdd = [
@@ -54,6 +67,7 @@ const lineItemsToAdd = [
 ];
 await client.checkout.addLineItems(checkout, lineItemsToAdd).then((checkout) => {
   console.log(checkout.lineItems);
+setNumcartitems(checkout.lineItems.length)
 });
 }
 
@@ -104,6 +118,8 @@ async function handleSubmit(e){
 }
 
   return(
+    <div>
+    <NavBar numcartitems={numcartitems}/>
   <div style={{margin:"5vw"}}>
 {product&&<div>
   <h2>{product.title}</h2>
@@ -152,5 +168,6 @@ async function handleSubmit(e){
       </div>
     )
   })}
+</div>
 </div>)
 }
