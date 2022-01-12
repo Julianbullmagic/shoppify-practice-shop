@@ -11,8 +11,8 @@
     "start": "node app.js",
     "dev": "webpack-dev-server --hot --history-api-fallback --open"
   },
-  "engines":{
-    "node":"v16.13.0"
+  "engines": {
+    "node": "v16.13.0"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,7 @@
     "shopify-buy": "^2.13.0",
     "simple-rating-stars": "^1.6.0",
     "styled-components": "^5.3.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

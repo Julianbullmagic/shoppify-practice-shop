@@ -11,6 +11,16 @@ const client = Client.buildClient({
   storefrontAccessToken: '1c85f492e0af12f1faf7a619b1baa3a4'
 });
 
+let url
+
+if(process.env.NODE_ENV=="production"){
+  url="https://all-shoes.herokuapp.com/"
+}
+
+if(process.env.NODE_ENV=="development"){
+ url="http://localhost:5000"
+}
+
 export default function SingleProductPage(props){
   const {id} = useParams();
   const [reviews, setReviews] = useState([]);
@@ -79,7 +89,7 @@ setNumcartitems(checkout.lineItems.length)
 }
 
 async function getReviews(){
-          await fetch("http://localhost:5000/getproductreviews/"+id)
+          await fetch(url+"/getproductreviews/"+id)
                   .then(response => response.json())
                   .then(json =>{
                     console.log("reviews",json)
@@ -137,7 +147,7 @@ if(starsRef.current.value<=5&&starsRef.current.value>=0){
           "Content-type": "application/json; charset=UTF-8"}}
 
 
-    await fetch("http://localhost:5000/createreview", options)
+    await fetch(url+"/createreview", options)
             .then(response => response.json()).then(json => console.log(json));
             setToggleform(false)
             setSubmitted(true)
